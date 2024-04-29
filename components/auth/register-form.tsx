@@ -70,7 +70,7 @@ export function RegisterForm() {
                     <Input
                       {...field}
                       disabled={isPending}
-                      placeholder="Joao Victor"
+                      placeholder="João Victor"
                       autoComplete="off"
                     />
                   </FormControl>
