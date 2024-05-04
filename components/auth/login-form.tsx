@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { LoginSchema } from "@/schemas";
@@ -25,6 +26,12 @@ import { login } from "@/actions/login";
 import { useState, useTransition } from "react";
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email já utilizado em uma conta diferente!"
+      : "";
+
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -44,7 +51,7 @@ export function LoginForm() {
     startTransition(() => {
       login(values).then((data) => {
         setError(data?.error);
-        setSuccess(data?.success);
+        // TODO: criar autenticação de 2 fatores
       });
     });
   };
@@ -98,8 +105,8 @@ export function LoginForm() {
               )}
             />
           </div>
-          <FormError message={error}/>
-          <FormSuccess message={success}/>
+          <FormError message={error || urlError} />
+          <FormSuccess message={success} />
           <Button type="submit" className="w-full" disabled={isPending}>
             Entrar
           </Button>
