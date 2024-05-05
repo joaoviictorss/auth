@@ -4,8 +4,10 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 
 import { db } from "@/lib/db";
+import { generateVerificationToken } from "@/lib/tokens";
 import { RegisterSchema } from "@/schemas";
 import { getUserByEmail } from "@/data/user";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const validateFields = RegisterSchema.safeParse(values);
@@ -20,18 +22,20 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const existingUser = await getUserByEmail(email);
 
   if (existingUser) {
-    return {error: "Este email já está sendo utilizado!"}
+    return { error: "Este email já está sendo utilizado!" };
   }
 
   await db.user.create({
     data: {
       name,
       email,
-      password: hashedPassword
-    }
-  })
+      password: hashedPassword,
+    },
+  });
 
-  // TODO: Enviar token de verificação por email
+  const verificationToken = await generateVerificationToken(email);
 
-  return { sucess: "Usuario criado!" };
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+
+  return { sucess: "Email de confitmação enviado!" };
 };

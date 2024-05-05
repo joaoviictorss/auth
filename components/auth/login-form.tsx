@@ -51,7 +51,7 @@ export function LoginForm() {
     startTransition(() => {
       login(values).then((data) => {
         setError(data?.error);
-        // TODO: criar autenticação de 2 fatores
+        setSuccess(data?.success);
       });
     });
   };

@@ -19,8 +19,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }
   },
   callbacks: {
+    async signIn({user, account}){
+      if(account?.provider !== "credentials") return true
+
+      const existingUser = await getUserById(user.id!)
+
+      // Previne o signin de usuarios sem verificação de email
+      if(!existingUser?.emailVerified) return false
+
+      //TODO: adicionar verifcação de 2 fatores
+
+      return true
+    },
     async session({ token, session }) {
-      console.log(token);
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
